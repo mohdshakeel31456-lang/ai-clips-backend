@@ -1,0 +1,21 @@
+const express = 8;
+const multer = require("multer");
+const { exec } = require("child_process");
+
+const app = express();
+const upload = multer({ dest: "uploads/" });
+
+app.post("/upload", upload.single("video"), (req, res) => {
+  const input = req.file.path;
+  const output = `clips/output-${Date.now()}.mp4`;
+
+  const cmd = `ffmpeg -i ${input} -t 15 -c copy ${output}`;
+
+  exec(cmd, (err) => {
+    if (err) return res.status(500).send("Error");
+
+    res.json({ file: output });
+  });
+});
+
+app.listen(3000, () => console.log("Server running"));
